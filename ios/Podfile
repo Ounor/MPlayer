@@ -23,6 +23,8 @@ target 'MPlayer' do
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'MPlayerTests' do
     inherit! :complete
     # Pods for testing

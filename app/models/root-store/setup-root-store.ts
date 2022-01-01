@@ -2,6 +2,8 @@ import { onSnapshot } from "mobx-state-tree"
 import { RootStoreModel, RootStore } from "./root-store"
 import { Environment } from "../environment"
 import * as storage from "../../utils/storage"
+import persist from "mst-persist"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 /**
  * The key we'll be saving our state as within async storage.
@@ -49,7 +51,17 @@ export async function setupRootStore() {
   }
 
   // track changes & save to storage
-  onSnapshot(rootStore, (snapshot) => storage.save(ROOT_STATE_STORAGE_KEY, snapshot))
+  onSnapshot(rootStore, (snapshot) => {
+    storage.save(ROOT_STATE_STORAGE_KEY, snapshot)
+  })
+
+  // persist('@playerStore', rootStore, {
+  //   storage: AsyncStorage,
+  //   jsonify: true, // set to true if using AsyncStorage
+  //   whitelist: [
+  //     'playerStore',
+  //   ]
+  // }).then()
 
   return rootStore
 }

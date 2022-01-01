@@ -7,7 +7,7 @@ import { ReactotronConfig, DEFAULT_REACTOTRON_CONFIG } from "./reactotron-config
 import { mst } from "reactotron-mst"
 import { clear } from "../../utils/storage"
 import { goBack, resetRoot, navigate } from "../../navigators/navigation-utilities"
-import { Platform } from "react-native"
+import { NativeModules, Platform } from "react-native"
 
 // Teach TypeScript about the bad things we want to do.
 declare global {
@@ -139,8 +139,16 @@ export class Reactotron {
         }),
       )
 
+      let scriptHostname;
+      if (__DEV__) {
+        const scriptURL = NativeModules.SourceCode.scriptURL;
+        scriptHostname = scriptURL.split('://')[1].split(':')[0];
+      }
+
+
+
       // connect to the app
-      Tron.connect()
+      Tron.configure({host: scriptHostname}).connect()
 
       // Register Custom Commands
       Tron.onCustomCommand({

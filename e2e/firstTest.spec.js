@@ -8,7 +8,7 @@ describe("Example", () => {
     await reloadApp()
   })
 
-  it("should have welcome screen", async () => {
+  it("should have noSluts screen", async () => {
     await expect(element(by.id("WelcomeScreen"))).toBeVisible()
   })
 

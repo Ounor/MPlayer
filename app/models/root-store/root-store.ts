@@ -1,12 +1,17 @@
 import { Instance, SnapshotOut, types } from "mobx-state-tree"
-import { CharacterStoreModel } from "../character-store/character-store"
+import { PlayerStoreModel } from "../player-store/player-store"
 
-/**
- * A RootStore model.
- */
-// prettier-ignore
+const playStoreInitial = {
+  isSluts: false,
+  isAvailableBook: false,
+  currentTrack: {},
+  progress: {
+    id:'',
+    duration: 0
+  }
+}
 export const RootStoreModel = types.model("RootStore").props({
-  characterStore: types.optional(CharacterStoreModel, {} as any),
+  playerStore: types.optional(PlayerStoreModel, playStoreInitial as any)
 })
 
 /**
@@ -14,7 +19,3 @@ export const RootStoreModel = types.model("RootStore").props({
  */
 export interface RootStore extends Instance<typeof RootStoreModel> {}
 
-/**
- * The data of a RootStore.
- */
-export interface RootStoreSnapshot extends SnapshotOut<typeof RootStoreModel> {}

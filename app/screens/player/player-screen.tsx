@@ -1,127 +1,298 @@
-import React, { FC } from "react"
-import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
+import React, { FC, useEffect, useRef, useState } from "react"
+import { Dimensions, Image, ImageBackground, TextInput, TouchableOpacity, View, ViewStyle } from "react-native"
+import Gestures from "react-native-easy-gestures"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
-import {
-  Button,
-  Header,
-  Screen,
-  Text,
-  GradientBackground,
-  AutoImage as Image,
-} from "../../components"
-import { color, spacing, typography } from "../../theme"
+import { GradientBackground, Text } from "../../components"
 import { NavigatorParamList } from "../../navigators"
+import AntDesign from "react-native-vector-icons/AntDesign"
+import TrackPlayer, { Capability, usePlaybackState, useProgress, } from "react-native-track-player"
+import Modal from "react-native-modal"
 
-const bowserLogo = require("./bowser.png")
+import Svg, { Defs, Ellipse, LinearGradient as SVGLinearGradient, Stop } from "react-native-svg"
+import styles from "./styles"
+import { useStores } from "../../models"
+import { ProgressBar } from "./components/ProgressBar"
 
 const FULL: ViewStyle = { flex: 1 }
-const CONTAINER: ViewStyle = {
-  backgroundColor: color.transparent,
-  paddingHorizontal: spacing[4],
-}
-const TEXT: TextStyle = {
-  color: color.palette.white,
-  fontFamily: typography.primary,
-}
-const BOLD: TextStyle = { fontWeight: "bold" }
-const HEADER: TextStyle = {
-  paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1],
-  paddingHorizontal: 0,
-}
-const HEADER_TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 12,
-  lineHeight: 15,
-  textAlign: "center",
-  letterSpacing: 1.5,
-}
-const TITLE_WRAPPER: TextStyle = {
-  ...TEXT,
-  textAlign: "center",
-}
-const TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 28,
-  lineHeight: 38,
-  textAlign: "center",
-}
-const ALMOST: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 26,
-  fontStyle: "italic",
-}
-const BOWSER: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-  width: 343,
-  height: 230,
-}
-const CONTENT: TextStyle = {
-  ...TEXT,
-  color: "#BAB6C8",
-  fontSize: 15,
-  lineHeight: 22,
-  marginBottom: spacing[5],
-}
-const CONTINUE: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.palette.deepPurple,
-}
-const CONTINUE_TEXT: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 13,
-  letterSpacing: 2,
-}
-const FOOTER: ViewStyle = { backgroundColor: "#20162D" }
-const FOOTER_CONTENT: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
-}
 
-export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "welcome">> = observer(
-  ({ navigation }) => {
-    const nextScreen = () => navigation.navigate("demo")
+export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = observer(
+  ({ navigation, route: { params } }) => {
+    const playbackState = usePlaybackState()
+    const [isVisibleCreate, setVisibleCreate] = useState(false)
+    const [bookmarkText, setBookmarkText] = useState("")
+    const { playerStore } = useStores()
+    const {
+      currentTrack = {
+        position: 0,
+      },
+    } = playerStore
+    const gestureRef = useRef()
+    const progress = useProgress()
 
+    const [isSluts, setIsSluts] = useState(false);
+    
+
+
+    // Переключение между плеерами
+    useEffect(()=> {
+      console.log(isSluts);
+      
+      if (!isSluts && playerStore.isSluts) {
+        setIsSluts(playerStore.isSluts)
+      } 
+      if (!playerStore.isSluts) {
+        setIsSluts(playerStore.isSluts)
+      }
+
+    },[playerStore.isSluts])
+
+    // инициализация плеера и восстановление состояния проигрывания 
+    useEffect(() => {
+      initializePlayer().then(() => console.log())
+      playerStore.isSluts && gestureRef.current.setState({
+        style: { left: 0, top: Dimensions.get("window").height * 0.1, transform: [{ rotate: "0deg" }, { scale: 1 }] },
+      })
+
+       
+    }, [])
+
+
+    // Сохранение прогресса в стор
+    useEffect(() => {
+      if ( playerStore.isSluts && progress.position > playerStore.currentTrack.position) {
+        TrackPlayer.getCurrentTrack().then((id) => {
+          playerStore.setCurrentTrack(playerStore.currentPlayList[id])
+          playerStore.setProgress(progress.position)
+        })
+      }
+      }, [progress.position])
+
+    const initializePlayer = async () => {
+      try {
+        TrackPlayer.updateOptions({
+          stopWithApp: false, // false=> music continues in background even when app is closed
+          // Media controls capabilities
+          capabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.SkipToNext,
+            Capability.SkipToPrevious,
+            Capability.Stop,
+          ],
+          // Capabilities that will show up when the notification is in the compact form on Android
+          compactCapabilities: [
+            Capability.Play,
+            Capability.Pause,
+            Capability.SkipToNext,
+            Capability.SkipToPrevious,
+            Capability.Stop,
+          ],
+        })
+
+        // Restore progress
+        await TrackPlayer.setupPlayer().then(async () => {
+          console.log(currentTrack.position);
+          
+          
+          if (playerStore.currentPlayList) {
+            TrackPlayer.add(playerStore.currentPlayList)
+            TrackPlayer.skip(parseInt(playerStore.currentTrack.id) - 1)
+            await TrackPlayer.seekTo(currentTrack.position)
+          }
+
+            // if (currentTrack.position) {
+            //   await TrackPlayer.seekTo(currentTrack.position)
+            //   await TrackPlayer.pause()
+            // }
+          },
+        )
+
+      } catch (e) {
+        // console.log(e)
+        // to-do handle error
+      }
+    }
+
+    // const setDefaultGeste = () =>
+    const handleTrackNavigate = (nav) => async () => {
+      const index = await TrackPlayer.getCurrentTrack()
+      playerStore.isSluts && gestureRef.current.setState({
+        style: { left: 0, top: Dimensions.get("window").height * 0.1, transform: [{ rotate: "0deg" }, { scale: 1 }] },
+      })
+      playerStore.setCurrentId((parseInt(playerStore.currentTrack.id) + 1).toString())
+
+      if (nav === "prev") {
+        if (index > 0) {
+          playerStore.setCurrentTrack(playerStore.currentPlayList[index - 1])
+          TrackPlayer.skipToPrevious()
+        }
+
+      } else {
+        if (index < playerStore.currentPlayList.length - 1) {
+          playerStore.setCurrentTrack(playerStore.currentPlayList[index + 1])
+          TrackPlayer.skipToNext()
+        }
+      }
+    }
+
+    const togglePlaying = async () => {
+      const playedNow = playerStore.currentTrack
+
+      if (!playerStore.currentTrack) {
+        if (playerStore.currentPlayList.length) {
+          await TrackPlayer.skip(0)
+          playerStore.setCurrentTrack(playerStore.currentPlayList[0])
+        }
+      } else {
+        await TrackPlayer.seekTo(currentTrack.position)
+      }
+
+      if (playbackState !== "playing") {
+        await TrackPlayer.play()
+      } else {
+        await TrackPlayer.pause()
+      }
+    }
+
+
+    const saveBookmark = () => {
+      playerStore.setBookmark(playerStore.currentTrack.id, currentTrack.position, bookmarkText)
+      setBookmarkText("")
+      setVisibleCreate(false)
+    }
     return (
-      <View testID="WelcomeScreen" style={FULL}>
-        <GradientBackground colors={["#0467CD", "#04182E"]} />
-        <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-          {/*<Header headerTx="welcomeScreen.poweredBy" style={HEADER} titleStyle={HEADER_TITLE} />*/}
-          <Text style={TITLE_WRAPPER}>
-            <Text style={TITLE} text="Your new app, " />
-            <Text style={ALMOST} text="almost" />
-            <Text style={TITLE} text="!" />
-          </Text>
-          <Text style={TITLE} preset="header" tx="welcomeScreen.readyForLaunch" />
-          <Image source={bowserLogo} style={BOWSER} />
-          <Text style={CONTENT}>
-            This probably isn't what your app is going to look like. Unless your designer handed you
-            this screen and, in that case, congrats! You're ready to ship.
-          </Text>
-          <Text style={CONTENT}>
-            For everyone else, this is where you'll see a live preview of your fully functioning app
-            using Ignite.
-          </Text>
-        </Screen>
-        <SafeAreaView style={FOOTER}>
-          <View style={FOOTER_CONTENT}>
-            <Button
-              testID="next-screen-button"
-              style={CONTINUE}
-              textStyle={CONTINUE_TEXT}
-              tx="welcomeScreen.continue"
-              onPress={nextScreen}
+      <View testID="PlayerScreen" style={FULL}>
+        <GradientBackground colors={["#0467CD", "#004fa6", "rgb(1,19,42)"]} />
+        <Image
+          source={require("./lines.png")}
+          resizeMode={"cover"}
+          style={{ position: "absolute", width: "100%", height: "100%", left: 0, right: 0 }}
+        />
+        <Svg width={700} height={400} id="sw-js-blob-svg" viewBox="150 -100 300 300">
+          <Defs>
+            <SVGLinearGradient
+              id="gradient"
+              x1="227.5"
+              y1="0"
+              x2="227.5"
+              y2="191"
+              gradientUnits="userSpaceOnUse"
+            >
+              <Stop stopColor="#28095A" />
+              <Stop offset="1" stopColor="#F9027E" />
+            </SVGLinearGradient>
+          </Defs>
+          <Ellipse scale={1} cx="227.5" cy="95.5" rx="673.5" ry="95.5" fill="url(#gradient)" />
+        </Svg>
+        <View style={styles.interface}>
+          <View>
+            {playerStore.isSluts ? 
+            <Gestures
+            ref={gestureRef}
+            rotatable={false}
+            scalable={true}
+            onStart={() => gestureRef.current.reset(() => console.log())}
+            onChange={async (event, styles) => {
+              await TrackPlayer.pause()
+            }}
+          >
+            <Image
+              source={currentTrack?.artwork || require("./placeholder.png")}
+              resizeMode="center"
+              style={{ width: 280, height: 450, marginBottom: 100 }}
             />
+          </Gestures> 
+          : <Image
+                source={require("./placeholder.png")}
+                resizeMode="center"
+                style={{ width: 300, height: 450, marginBottom: 100 }}
+              />}
           </View>
-        </SafeAreaView>
+          <ProgressBar />
+          <View style={styles.audioTitles}>
+            <Text style={styles.audioTitle}>
+              {currentTrack?.title} {currentTrack?.artist?.replaceAll("\"", "")}
+            </Text>
+            <Text style={styles.audioSubTitle}></Text>
+          </View>
+          <View style={styles.audioControllers}>
+            <TouchableOpacity style={styles.controlWhite}>
+              <AntDesign name={"swap"} size={26} color={"#fff"} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={handleTrackNavigate("prev")}
+              style={styles.controlRound}>
+              <AntDesign name={"stepbackward"} size={17} color={"#fff"} />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={togglePlaying}>
+              <ImageBackground
+                style={styles.imgBgStyle}
+                resizeMode="cover"
+                source={require("./play_bg.png")}
+              >
+                <AntDesign
+                  name={playbackState !== "playing" ? "caretright" : "pause"}
+                  size={24}
+                  color={"#fff"}
+                />
+              </ImageBackground>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handleTrackNavigate("next")}
+              style={styles.controlRound}
+            >
+              <AntDesign name={"stepforward"} size={17} color={"#fff"} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.controlWhite}>
+              {playerStore.isSluts
+                ? <AntDesign onPress={() => setVisibleCreate(!isVisibleCreate)} name={"message1"} size={17}
+                             color={"#fff"} />
+                : <AntDesign
+                  // onPress={onPress}
+                  name={"reload1"}
+                  size={17}
+                  color={"#fff"}
+                />}
+            </TouchableOpacity>
+          </View>
+          <Modal
+            avoidKeyboard
+            onBackdropPress={() => setVisibleCreate(!isVisibleCreate)}
+            isVisible={isVisibleCreate}>
+            <View style={{
+              height: 240,
+              backgroundColor: "white",
+              justifyContent: "space-between",
+              padding: 32,
+              borderRadius: 16,
+            }}>
+              <TextInput
+                multiline={true}
+                numberOfLines={4}
+                style={{ height: 40, borderBottomColor: "#c2c2c2" }}
+                placeholder="Введите текст заметки"
+                onChangeText={text => setBookmarkText(text)}
+                defaultValue={bookmarkText}
+              />
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <TouchableOpacity onPress={saveBookmark}>
+                  <Text style={{ fontSize: 16, color: "#272c35" }}>
+                    Добавить
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setVisibleCreate(!isVisibleCreate)}>
+                  <Text style={{ fontSize: 16, color: "#272c35" }}>
+                    Отмена
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+            </View>
+          </Modal>
+          <View style={styles.volumeControl}></View>
+        </View>
       </View>
     )
   },

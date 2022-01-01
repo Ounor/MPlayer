@@ -19,6 +19,8 @@ import { useBackButtonHandler, AppNavigator, canExit, useNavigationPersistence }
 import { RootStore, RootStoreProvider, setupRootStore } from "./models"
 import { ToggleStorybook } from "../storybook/toggle-storybook"
 import { ErrorBoundary } from "./screens/error/error-boundary"
+import persist from "mst-persist"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 // This puts screens in a native ViewController or Activity. If you want fully native
 // stack navigation, use `createNativeStackNavigator` in place of `createStackNavigator`:
@@ -62,6 +64,7 @@ function App() {
         <SafeAreaProvider initialMetrics={initialWindowMetrics}>
           <ErrorBoundary catchErrors={"always"}>
             <AppNavigator
+              rootStore={rootStore}
               initialState={initialNavigationState}
               onStateChange={onNavigationStateChange}
             />

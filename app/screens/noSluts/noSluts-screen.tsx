@@ -1,125 +1,118 @@
+/* eslint-disable react-native/no-color-literals */
+/* eslint-disable react-native/no-inline-styles */
 import React, { FC } from "react"
-import { View, ViewStyle, TextStyle, ImageStyle, SafeAreaView } from "react-native"
+import { ImageBackground, TouchableOpacity, View, ViewStyle } from "react-native"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
-import {
-  Button,
-  Header,
-  Screen,
-  Text,
-  GradientBackground,
-  AutoImage as Image,
-} from "../../components"
-import { color, spacing, typography } from "../../theme"
+import { GradientBackground, Screen, Text } from "../../components"
+import { color } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
+import { playlist } from "./tracks"
+import AntDesign from "react-native-vector-icons/AntDesign"
+import C1Image from './chaptesrImg/_wbg.png';
+import TrackPlayer from "react-native-track-player"
+import { useStores } from "../../models"
 
 const FULL: ViewStyle = { flex: 1 }
-const CONTAINER: ViewStyle = {
-  backgroundColor: color.transparent,
-  paddingHorizontal: spacing[4],
-}
-const TEXT: TextStyle = {
-  color: color.palette.white,
-  fontFamily: typography.primary,
-}
-const BOLD: TextStyle = { fontWeight: "bold" }
-const HEADER: TextStyle = {
-  paddingTop: spacing[3],
-  paddingBottom: spacing[4] + spacing[1],
-  paddingHorizontal: 0,
-}
-const HEADER_TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 12,
-  lineHeight: 15,
-  textAlign: "center",
-  letterSpacing: 1.5,
-}
-const TITLE_WRAPPER: TextStyle = {
-  ...TEXT,
-  textAlign: "center",
-}
-const TITLE: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 28,
-  lineHeight: 38,
-  textAlign: "center",
-}
-const ALMOST: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 26,
-  fontStyle: "italic",
-}
-const BOWSER: ImageStyle = {
-  alignSelf: "center",
-  marginVertical: spacing[5],
-  maxWidth: "100%",
-  width: 343,
-  height: 230,
-}
-const CONTENT: TextStyle = {
-  ...TEXT,
-  color: "#BAB6C8",
-  fontSize: 15,
-  lineHeight: 22,
-  marginBottom: spacing[5],
-}
-const CONTINUE: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
-  backgroundColor: color.palette.deepPurple,
-}
-const CONTINUE_TEXT: TextStyle = {
-  ...TEXT,
-  ...BOLD,
-  fontSize: 13,
-  letterSpacing: 2,
-}
-const FOOTER: ViewStyle = { backgroundColor: "#20162D" }
-const FOOTER_CONTENT: ViewStyle = {
-  paddingVertical: spacing[4],
-  paddingHorizontal: spacing[4],
+const SCREEN: ViewStyle = { paddingBottom: 120, paddingHorizontal: 32 }
+
+const secondsToHHMMSS = (seconds: number | string) => {
+  seconds = Number(seconds)
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor((seconds % 3600) % 60)
+
+  const hrs = h > 0 ? (h < 10 ? `0${h}:` : `${h}:`) : ""
+  const mins = m > 0 ? (m < 10 ? `0${m}:` : `${m}:`) : "00:"
+  const scnds = s > 0 ? (s < 10 ? `0${s}` : s) : "00"
+  return `${hrs}${mins}${scnds}`
 }
 
-export const WelcomeScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">> = observer(
+export const NoSlutsScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">> = observer(
   ({ navigation }) => {
-    const nextScreen = () => navigation.navigate("demo")
+    const { playerStore } = useStores()
 
+
+    const prepareToPlayer = () => {
+      playerStore.setSluts(true)
+      TrackPlayer.reset()
+      TrackPlayer.add(playlist)
+      playerStore.setPlayList(playlist)
+      navigation.navigate("player")
+      TrackPlayer.play()
+
+    }
+
+    const sendToPlayer = async () => {
+      prepareToPlayer()
+      playerStore.setCurrentTrack(playlist[0])
+
+    }
+
+    const addToPlayQueue = async (item, index) => {
+      prepareToPlayer()
+      playerStore.setCurrentTrack(playlist[index])
+
+      TrackPlayer.skip(index)
+      TrackPlayer.play()
+    }
+
+    const renderPlayListItem = (item, index) => {      
+      return <TouchableOpacity onPress={() => addToPlayQueue(item, index)} style={{flexDirection: 'row', justifyContent: "space-between"}} key={item.artist}>
+        <ImageBackground source={C1Image} style={{paddingTop: 6, paddingLeft: 6, width: 40, height: 40, borderRadius: 22}}>
+          <AntDesign
+            name={playerStore.playingId === item.id ? 'pause' : 'caretright'}
+            size={28}
+            color={"#F9027E"}
+          />
+        </ImageBackground>
+        <View style={{ flexDirection: "row", justifyContent: "space-between", width: "85%", marginBottom: 26, }}>
+          <View>
+            <Text style={{fontSize: 14, marginBottom: 6}}>
+            Глава {index + 1}
+          </Text>
+            <Text style={{fontSize: 16, lineHeight: 22, fontWeight: 'bold', width: 200}}>
+            {item.artist}
+          </Text>
+          </View>
+          <Text>
+            {secondsToHHMMSS(item.duration)}
+          </Text>
+        </View>
+
+      </TouchableOpacity>
+
+    }
     return (
       <View testID="PlayerScreen" style={FULL}>
         <GradientBackground colors={["#0467CD", "#04182E"]} />
-        <Screen style={CONTAINER} preset="scroll" backgroundColor={color.transparent}>
-          <Header headerTx="welcomeScreen.poweredBy" style={HEADER} titleStyle={HEADER_TITLE} />
-          <Text style={TITLE_WRAPPER}>
-            <Text style={TITLE} text="Your new app, " />
-            <Text style={ALMOST} text="almost" />
-            <Text style={TITLE} text="!" />
-          </Text>
-          <Text style={TITLE} preset="header" tx="welcomeScreen.readyForLaunch" />
-          <Image source={bowserLogo} style={BOWSER} />
-          <Text style={CONTENT}>
-            This probably isn't what your app is going to look like. Unless your designer handed you
-            this screen and, in that case, congrats! You're ready to ship.
-          </Text>
-          <Text style={CONTENT}>
-            For everyone else, this is where you'll see a live preview of your fully functioning app
-            using Ignite.
-          </Text>
+        <Screen style={SCREEN} preset="scroll" backgroundColor={color.transparent}>
+          {
+            playlist.map((item, index) => renderPlayListItem(item, index))
+          }
         </Screen>
-        <SafeAreaView style={FOOTER}>
-          <View style={FOOTER_CONTENT}>
-            <Button
-              testID="next-screen-button"
-              style={CONTINUE}
-              textStyle={CONTINUE_TEXT}
-              tx="welcomeScreen.continue"
-              onPress={nextScreen}
-            />
-          </View>
-        </SafeAreaView>
+
+        <TouchableOpacity style={{
+          bottom: -40,
+          position: 'absolute',
+          backgroundColor: "#F9027E",
+          marginBottom: 142,
+          paddingHorizontal: 16,
+          paddingVertical: 12,
+          width: "80%",
+          marginHorizontal: "10%",
+          padding: 16,
+          borderRadius: 32,
+
+        }} onPress={sendToPlayer}>
+          <Text style={{
+            color: "#fff",
+            fontSize: 16,
+            textAlign: "center",
+          }}>
+            Воспроизвести плейлист
+          </Text>
+        </TouchableOpacity>
       </View>
     )
   },

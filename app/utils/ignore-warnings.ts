@@ -6,5 +6,5 @@ import { LogBox } from "react-native"
 
 // prettier-ignore
 LogBox.ignoreLogs([
-  "Require cycle:",
+  "Require cycle:", "componentWillMount has been renamed, and is not recommended for use."
 ])
