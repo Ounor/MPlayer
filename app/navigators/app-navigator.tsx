@@ -29,20 +29,19 @@ const Tab = createBottomTabNavigator<NavigatorParamList>()
 const AppTabs = observer(() => {
   const { playerStore } = useStores()
   return (
-
-    <Tab.Navigator screenOptions={{
-      headerShown: false,
-    }} tabBar={props => <TabBarComponent {...props} />}>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+      tabBar={(props) => <TabBarComponent {...props} />}
+    >
       <Tab.Screen name="files" component={FilesScreen} />
       <Tab.Screen name="player" component={PlayerScreen} />
       <Tab.Screen name="settings" component={SettingsScreen} />
       {playerStore.isAvailableBook && <Tab.Screen name="noslutls" component={NoSlutsScreen} />}
     </Tab.Navigator>
-
   )
 })
-
-
 
 export const AppNavigator = (props) => {
   const colorScheme = useColorScheme()

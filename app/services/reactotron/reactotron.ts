@@ -139,16 +139,14 @@ export class Reactotron {
         }),
       )
 
-      let scriptHostname;
+      let scriptHostname
       if (__DEV__) {
-        const scriptURL = NativeModules.SourceCode.scriptURL;
-        scriptHostname = scriptURL.split('://')[1].split(':')[0];
+        const scriptURL = NativeModules.SourceCode.scriptURL
+        scriptHostname = scriptURL.split("://")[1].split(":")[0]
       }
 
-
-
       // connect to the app
-      Tron.configure({host: scriptHostname}).connect()
+      Tron.configure({ host: scriptHostname }).connect()
 
       // Register Custom Commands
       Tron.onCustomCommand({

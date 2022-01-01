@@ -9,7 +9,7 @@ import { color } from "../../theme"
 import { NavigatorParamList } from "../../navigators"
 import { playlist } from "./tracks"
 import AntDesign from "react-native-vector-icons/AntDesign"
-import C1Image from './chaptesrImg/_wbg.png';
+import C1Image from "./chaptesrImg/_wbg.png"
 import TrackPlayer from "react-native-track-player"
 import { useStores } from "../../models"
 
@@ -32,7 +32,6 @@ export const NoSlutsScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">> 
   ({ navigation }) => {
     const { playerStore } = useStores()
 
-
     const prepareToPlayer = () => {
       playerStore.setSluts(true)
       TrackPlayer.reset()
@@ -40,13 +39,11 @@ export const NoSlutsScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">> 
       playerStore.setPlayList(playlist)
       navigation.navigate("player")
       TrackPlayer.play()
-
     }
 
     const sendToPlayer = async () => {
       prepareToPlayer()
       playerStore.setCurrentTrack(playlist[0])
-
     }
 
     const addToPlayQueue = async (item, index) => {
@@ -57,59 +54,71 @@ export const NoSlutsScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">> 
       TrackPlayer.play()
     }
 
-    const renderPlayListItem = (item, index) => {      
-      return <TouchableOpacity onPress={() => addToPlayQueue(item, index)} style={{flexDirection: 'row', justifyContent: "space-between"}} key={item.artist}>
-        <ImageBackground source={C1Image} style={{paddingTop: 6, paddingLeft: 6, width: 40, height: 40, borderRadius: 22}}>
-          <AntDesign
-            name={playerStore.playingId === item.id ? 'pause' : 'caretright'}
-            size={28}
-            color={"#F9027E"}
-          />
-        </ImageBackground>
-        <View style={{ flexDirection: "row", justifyContent: "space-between", width: "85%", marginBottom: 26, }}>
-          <View>
-            <Text style={{fontSize: 14, marginBottom: 6}}>
-            Глава {index + 1}
-          </Text>
-            <Text style={{fontSize: 16, lineHeight: 22, fontWeight: 'bold', width: 200}}>
-            {item.artist}
-          </Text>
+    const renderPlayListItem = (item, index) => {
+      return (
+        <TouchableOpacity
+          onPress={() => addToPlayQueue(item, index)}
+          style={{ flexDirection: "row", justifyContent: "space-between" }}
+          key={item.artist}
+        >
+          <ImageBackground
+            source={C1Image}
+            style={{ paddingTop: 6, paddingLeft: 6, width: 40, height: 40, borderRadius: 22 }}
+          >
+            <AntDesign
+              name={playerStore.playingId === item.id ? "pause" : "caretright"}
+              size={28}
+              color={"#F9027E"}
+            />
+          </ImageBackground>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "85%",
+              marginBottom: 26,
+            }}
+          >
+            <View>
+              <Text style={{ fontSize: 14, marginBottom: 6 }}>Глава {index + 1}</Text>
+              <Text style={{ fontSize: 16, lineHeight: 22, fontWeight: "bold", width: 200 }}>
+                {item.artist}
+              </Text>
+            </View>
+            <Text>{secondsToHHMMSS(item.duration)}</Text>
           </View>
-          <Text>
-            {secondsToHHMMSS(item.duration)}
-          </Text>
-        </View>
-
-      </TouchableOpacity>
-
+        </TouchableOpacity>
+      )
     }
     return (
       <View testID="PlayerScreen" style={FULL}>
         <GradientBackground colors={["#0467CD", "#04182E"]} />
         <Screen style={SCREEN} preset="scroll" backgroundColor={color.transparent}>
-          {
-            playlist.map((item, index) => renderPlayListItem(item, index))
-          }
+          {playlist.map((item, index) => renderPlayListItem(item, index))}
         </Screen>
 
-        <TouchableOpacity style={{
-          bottom: -40,
-          position: 'absolute',
-          backgroundColor: "#F9027E",
-          marginBottom: 142,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          width: "80%",
-          marginHorizontal: "10%",
-          padding: 16,
-          borderRadius: 32,
-
-        }} onPress={sendToPlayer}>
-          <Text style={{
-            color: "#fff",
-            fontSize: 16,
-            textAlign: "center",
-          }}>
+        <TouchableOpacity
+          style={{
+            bottom: -40,
+            position: "absolute",
+            backgroundColor: "#F9027E",
+            marginBottom: 142,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            width: "80%",
+            marginHorizontal: "10%",
+            padding: 16,
+            borderRadius: 32,
+          }}
+          onPress={sendToPlayer}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              textAlign: "center",
+            }}
+          >
             Воспроизвести плейлист
           </Text>
         </TouchableOpacity>

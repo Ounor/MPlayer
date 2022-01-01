@@ -19,7 +19,7 @@ export const ProgressBar = () => {
   const chapterBookmark = [...playerStore.bookmarks]
 
   const setProgress = async (e) => {
-    await TrackPlayer.seekTo(e * progress.duration / 100)
+    await TrackPlayer.seekTo((e * progress.duration) / 100)
   }
 
   const secondsToHHMMSS = (seconds: number | string) => {
@@ -37,70 +37,76 @@ export const ProgressBar = () => {
 
   return (
     <View>
-      <Modal avoidKeyboard onBackdropPress={() => setVisibleEdit(!isVisibleEdit)} isVisible={isVisibleEdit}>
-        <View style={{
-          height: 240,
-          backgroundColor: "white",
-          justifyContent: "space-between",
-          padding: 32,
-          borderRadius: 16,
-        }}>
-          <Text>
-            {currentBookmark.description}
-          </Text>
+      <Modal
+        avoidKeyboard
+        onBackdropPress={() => setVisibleEdit(!isVisibleEdit)}
+        isVisible={isVisibleEdit}
+      >
+        <View
+          style={{
+            height: 240,
+            backgroundColor: "white",
+            justifyContent: "space-between",
+            padding: 32,
+            borderRadius: 16,
+          }}
+        >
+          <Text>{currentBookmark.description}</Text>
           <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <TouchableOpacity onPress={async () => {
-              await TrackPlayer.seekTo(currentBookmark.position)
-              setVisibleEdit(!isVisibleEdit)
-            }}>
-              <Text style={{ fontSize: 16, color: "#272c35" }}>
-                Перейти
-              </Text>
+            <TouchableOpacity
+              onPress={async () => {
+                await TrackPlayer.seekTo(currentBookmark.position)
+                setVisibleEdit(!isVisibleEdit)
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#272c35" }}>Перейти</Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {
-              playerStore.removeBookmark(currentBookmark.id)
-              setVisibleEdit(!isVisibleEdit)
-            } }>
-              <Text style={{ fontSize: 16, color: "#272c35" }}>
-                Удалить
-              </Text>
+            <TouchableOpacity
+              onPress={() => {
+                playerStore.removeBookmark(currentBookmark.id)
+                setVisibleEdit(!isVisibleEdit)
+              }}
+            >
+              <Text style={{ fontSize: 16, color: "#272c35" }}>Удалить</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </Modal>
 
       <View style={styles.progressFromTo}>
         {/* eslint-disable-next-line react-native/no-inline-styles,react-native/no-color-literals */}
-        <Text style={{ color: "white" }}>{(secondsToHHMMSS(progress.position === 0 
-        ? playerStore.currentTrack.position
-        : progress.position ))}</Text>
+        <Text style={{ color: "white" }}>
+          {secondsToHHMMSS(
+            progress.position === 0 ? playerStore.currentTrack.position : progress.position,
+          )}
+        </Text>
         {/* eslint-disable-next-line react-native/no-inline-styles,react-native/no-color-literals */}
-        <Text style={{ color: "white" }}>{(secondsToHHMMSS(progress.duration))}</Text>
+        <Text style={{ color: "white" }}>{secondsToHHMMSS(progress.duration)}</Text>
       </View>
-      <View style={{backgroundColor: 'blue', height: 0, marginHorizontal: 22,
-      }}>
+      <View style={{ backgroundColor: "blue", height: 0, marginHorizontal: 22 }}>
         {chapterBookmark.map((bookmark, index) => {
-           return bookmark.chapter === playerStore.currentTrack.id
-           && (playbackState ===  'paused'
-           || playbackState ===  'playing'
-           || playbackState ===  'ready')
-             ? <TouchableOpacity key={bookmark.id.toString()+bookmark.chapter+index} onPress={() => {
-              setCurrentBookmark(bookmark)
-              setVisibleEdit(!isVisibleEdit)
-            }} style={{
-              top: -30,
-              borderRadius: 40,
-              width: 10,
-              height: 10,
-              backgroundColor: "red",
-              position: "absolute",
-              left: `${ bookmark.position / progress.duration * 100}%`
-            }}>
-
-            </TouchableOpacity> : null
-          },
-        )}
+          return bookmark.chapter === playerStore.currentTrack.id &&
+            (playbackState === "paused" ||
+              playbackState === "playing" ||
+              playbackState === "ready") ? (
+            <TouchableOpacity
+              key={bookmark.id.toString() + bookmark.chapter + index}
+              onPress={() => {
+                setCurrentBookmark(bookmark)
+                setVisibleEdit(!isVisibleEdit)
+              }}
+              style={{
+                top: -30,
+                borderRadius: 40,
+                width: 10,
+                height: 10,
+                backgroundColor: "red",
+                position: "absolute",
+                left: `${(bookmark.position / progress.duration) * 100}%`,
+              }}
+            ></TouchableOpacity>
+          ) : null
+        })}
       </View>
       <MultiSlider
         containerStyle={styles.slider}
@@ -114,14 +120,16 @@ export const ProgressBar = () => {
         min={0}
         max={100}
         step={1}
-        values={[Math.round(progress.position === 0 
-          ? playerStore.currentTrack.position  / progress.duration * 100
-          : progress.position / progress.duration * 100) || 0]}
+        values={[
+          Math.round(
+            progress.position === 0
+              ? (playerStore.currentTrack.position / progress.duration) * 100
+              : (progress.position / progress.duration) * 100,
+          ) || 0,
+        ]}
         allowOverlap
         snapped
       />
-
     </View>
   )
-
 }

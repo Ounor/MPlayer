@@ -10,31 +10,28 @@ import { GradientBackground, Text } from "../../components"
 import { NavigatorParamList } from "../../navigators"
 import TrackPlayer from "react-native-track-player"
 import { useStores } from "../../models"
-import C1Image from '../player/placeholder.png';
+import C1Image from "../player/placeholder.png"
 
 const FULL: ViewStyle = { flex: 1 }
 
 export const FilesScreen: FC<StackScreenProps<NavigatorParamList, "files">> = observer(
   ({ navigation }) => {
-
     const [audioList, setAudioList] = useState([])
 
     const pickFiles = async () => {
       try {
         const res = await DocumentPicker.pick({
-          mode: 'open',
+          mode: "open",
           type: [DocumentPicker.types.audio],
         })
         const newTrack = {
           id: audioList.length.toString() + 1,
           url: res[0].uri,
-          title: res[0].name.replace('.mp3', ''),
+          title: res[0].name.replace(".mp3", ""),
           artwork: C1Image,
           artist: "",
-          duration: 900
+          duration: 900,
         }
-
-
 
         setAudioList([...audioList, newTrack])
       } catch (err) {
@@ -44,9 +41,7 @@ export const FilesScreen: FC<StackScreenProps<NavigatorParamList, "files">> = ob
           throw err
         }
       }
-
     }
-
 
     const { playerStore } = useStores()
 
@@ -58,33 +53,27 @@ export const FilesScreen: FC<StackScreenProps<NavigatorParamList, "files">> = ob
       navigation.navigate("player")
     }
 
-
     const sendToPlayer = () => {
       prepareToPlayer()
       playerStore.setCurrentTrack(audioList[0])
       TrackPlayer.play()
-
     }
 
-    const addToPlayQueue = (index) => {      
+    const addToPlayQueue = (index) => {
       prepareToPlayer()
       playerStore.setCurrentTrack(audioList[index])
       TrackPlayer.skip(index)
       TrackPlayer.play()
     }
 
-    const renderAudio = ({ item , index} ) => {
+    const renderAudio = ({ item, index }) => {
+      console.log(index)
 
-      console.log(index);
-      
       return (
         <View key={item.uri}>
           <TouchableOpacity onPress={() => addToPlayQueue(index)} style={{ marginVertical: 16 }}>
-            <Text>
-              {item.title}
-            </Text>
+            <Text>{item.title}</Text>
           </TouchableOpacity>
-
         </View>
       )
     }
@@ -95,41 +84,54 @@ export const FilesScreen: FC<StackScreenProps<NavigatorParamList, "files">> = ob
     return (
       <View testID="FilesScreen" style={FULL}>
         <GradientBackground colors={["#0467CD", "#04182E"]} />
-        <FlatList style={{ marginTop: 80, marginHorizontal: 32 }} data={audioList} renderItem={renderAudio} />
-        <TouchableOpacity style={{
-          backgroundColor: "#F9027E",
-          marginBottom: 22,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          width: "80%",
-          marginHorizontal: "10%",
-          padding: 16,
-          borderRadius: 32,
-        }} onPress={pickFiles}>
-          <Text style={{
-            color: "#fff",
-            fontSize: 16,
-            textAlign: "center",
-          }}>
+        <FlatList
+          style={{ marginTop: 80, marginHorizontal: 32 }}
+          data={audioList}
+          renderItem={renderAudio}
+        />
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#F9027E",
+            marginBottom: 22,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            width: "80%",
+            marginHorizontal: "10%",
+            padding: 16,
+            borderRadius: 32,
+          }}
+          onPress={pickFiles}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              textAlign: "center",
+            }}
+          >
             Добавить аудио
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={{
-          backgroundColor: "#F9027E",
-          marginBottom: 142,
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          width: "80%",
-          marginHorizontal: "10%",
-          padding: 16,
-          borderRadius: 32,
-
-        }} onPress={sendToPlayer}>
-          <Text style={{
-            color: "#fff",
-            fontSize: 16,
-            textAlign: "center",
-          }}>
+        <TouchableOpacity
+          style={{
+            backgroundColor: "#F9027E",
+            marginBottom: 142,
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            width: "80%",
+            marginHorizontal: "10%",
+            padding: 16,
+            borderRadius: 32,
+          }}
+          onPress={sendToPlayer}
+        >
+          <Text
+            style={{
+              color: "#fff",
+              fontSize: 16,
+              textAlign: "center",
+            }}
+          >
             Воспроизвести плейлист
           </Text>
         </TouchableOpacity>

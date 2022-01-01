@@ -1,12 +1,20 @@
 import React, { FC, useEffect, useRef, useState } from "react"
-import { Dimensions, Image, ImageBackground, TextInput, TouchableOpacity, View, ViewStyle } from "react-native"
+import {
+  Dimensions,
+  Image,
+  ImageBackground,
+  TextInput,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from "react-native"
 import Gestures from "react-native-easy-gestures"
 import { StackScreenProps } from "@react-navigation/stack"
 import { observer } from "mobx-react-lite"
 import { GradientBackground, Text } from "../../components"
 import { NavigatorParamList } from "../../navigators"
 import AntDesign from "react-native-vector-icons/AntDesign"
-import TrackPlayer, { Capability, usePlaybackState, useProgress, } from "react-native-track-player"
+import TrackPlayer, { Capability, usePlaybackState, useProgress } from "react-native-track-player"
 import Modal from "react-native-modal"
 
 import Svg, { Defs, Ellipse, LinearGradient as SVGLinearGradient, Stop } from "react-native-svg"
@@ -30,43 +38,42 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
     const gestureRef = useRef()
     const progress = useProgress()
 
-    const [isSluts, setIsSluts] = useState(false);
-    
-
+    const [isSluts, setIsSluts] = useState(false)
 
     // Переключение между плеерами
-    useEffect(()=> {
-      console.log(isSluts);
-      
+    useEffect(() => {
+      console.log(isSluts)
+
       if (!isSluts && playerStore.isSluts) {
         setIsSluts(playerStore.isSluts)
-      } 
+      }
       if (!playerStore.isSluts) {
         setIsSluts(playerStore.isSluts)
       }
+    }, [playerStore.isSluts])
 
-    },[playerStore.isSluts])
-
-    // инициализация плеера и восстановление состояния проигрывания 
+    // инициализация плеера и восстановление состояния проигрывания
     useEffect(() => {
       initializePlayer().then(() => console.log())
-      playerStore.isSluts && gestureRef.current.setState({
-        style: { left: 0, top: Dimensions.get("window").height * 0.1, transform: [{ rotate: "0deg" }, { scale: 1 }] },
-      })
-
-       
+      playerStore.isSluts &&
+        gestureRef.current.setState({
+          style: {
+            left: 0,
+            top: Dimensions.get("window").height * 0.1,
+            transform: [{ rotate: "0deg" }, { scale: 1 }],
+          },
+        })
     }, [])
-
 
     // Сохранение прогресса в стор
     useEffect(() => {
-      if ( playerStore.isSluts && progress.position > playerStore.currentTrack.position) {
+      if (playerStore.isSluts && progress.position > playerStore.currentTrack.position) {
         TrackPlayer.getCurrentTrack().then((id) => {
           playerStore.setCurrentTrack(playerStore.currentPlayList[id])
           playerStore.setProgress(progress.position)
         })
       }
-      }, [progress.position])
+    }, [progress.position])
 
     const initializePlayer = async () => {
       try {
@@ -92,22 +99,19 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
 
         // Restore progress
         await TrackPlayer.setupPlayer().then(async () => {
-          console.log(currentTrack.position);
-          
-          
+          console.log(currentTrack.position)
+
           if (playerStore.currentPlayList) {
             TrackPlayer.add(playerStore.currentPlayList)
             TrackPlayer.skip(parseInt(playerStore.currentTrack.id) - 1)
             await TrackPlayer.seekTo(currentTrack.position)
           }
 
-            // if (currentTrack.position) {
-            //   await TrackPlayer.seekTo(currentTrack.position)
-            //   await TrackPlayer.pause()
-            // }
-          },
-        )
-
+          // if (currentTrack.position) {
+          //   await TrackPlayer.seekTo(currentTrack.position)
+          //   await TrackPlayer.pause()
+          // }
+        })
       } catch (e) {
         // console.log(e)
         // to-do handle error
@@ -117,9 +121,14 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
     // const setDefaultGeste = () =>
     const handleTrackNavigate = (nav) => async () => {
       const index = await TrackPlayer.getCurrentTrack()
-      playerStore.isSluts && gestureRef.current.setState({
-        style: { left: 0, top: Dimensions.get("window").height * 0.1, transform: [{ rotate: "0deg" }, { scale: 1 }] },
-      })
+      playerStore.isSluts &&
+        gestureRef.current.setState({
+          style: {
+            left: 0,
+            top: Dimensions.get("window").height * 0.1,
+            transform: [{ rotate: "0deg" }, { scale: 1 }],
+          },
+        })
       playerStore.setCurrentId((parseInt(playerStore.currentTrack.id) + 1).toString())
 
       if (nav === "prev") {
@@ -127,7 +136,6 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
           playerStore.setCurrentTrack(playerStore.currentPlayList[index - 1])
           TrackPlayer.skipToPrevious()
         }
-
       } else {
         if (index < playerStore.currentPlayList.length - 1) {
           playerStore.setCurrentTrack(playerStore.currentPlayList[index + 1])
@@ -154,7 +162,6 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
         await TrackPlayer.pause()
       }
     }
-
 
     const saveBookmark = () => {
       playerStore.setBookmark(playerStore.currentTrack.id, currentTrack.position, bookmarkText)
@@ -187,32 +194,34 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
         </Svg>
         <View style={styles.interface}>
           <View>
-            {playerStore.isSluts ? 
-            <Gestures
-            ref={gestureRef}
-            rotatable={false}
-            scalable={true}
-            onStart={() => gestureRef.current.reset(() => console.log())}
-            onChange={async (event, styles) => {
-              await TrackPlayer.pause()
-            }}
-          >
-            <Image
-              source={currentTrack?.artwork || require("./placeholder.png")}
-              resizeMode="center"
-              style={{ width: 280, height: 450, marginBottom: 100 }}
-            />
-          </Gestures> 
-          : <Image
+            {playerStore.isSluts ? (
+              <Gestures
+                ref={gestureRef}
+                rotatable={false}
+                scalable={true}
+                onStart={() => gestureRef.current.reset(() => console.log())}
+                onChange={async (event, styles) => {
+                  await TrackPlayer.pause()
+                }}
+              >
+                <Image
+                  source={currentTrack?.artwork || require("./placeholder.png")}
+                  resizeMode="center"
+                  style={{ width: 280, height: 450, marginBottom: 100 }}
+                />
+              </Gestures>
+            ) : (
+              <Image
                 source={require("./placeholder.png")}
                 resizeMode="center"
                 style={{ width: 300, height: 450, marginBottom: 100 }}
-              />}
+              />
+            )}
           </View>
           <ProgressBar />
           <View style={styles.audioTitles}>
             <Text style={styles.audioTitle}>
-              {currentTrack?.title} {currentTrack?.artist?.replaceAll("\"", "")}
+              {currentTrack?.title} {currentTrack?.artist?.replaceAll('"', "")}
             </Text>
             <Text style={styles.audioSubTitle}></Text>
           </View>
@@ -220,9 +229,7 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
             <TouchableOpacity style={styles.controlWhite}>
               <AntDesign name={"swap"} size={26} color={"#fff"} />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPress={handleTrackNavigate("prev")}
-              style={styles.controlRound}>
+            <TouchableOpacity onPress={handleTrackNavigate("prev")} style={styles.controlRound}>
               <AntDesign name={"stepbackward"} size={17} color={"#fff"} />
             </TouchableOpacity>
             <TouchableOpacity onPress={togglePlaying}>
@@ -239,56 +246,57 @@ export const PlayerScreen: FC<StackScreenProps<NavigatorParamList, "player">> = 
               </ImageBackground>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleTrackNavigate("next")}
-              style={styles.controlRound}
-            >
+            <TouchableOpacity onPress={handleTrackNavigate("next")} style={styles.controlRound}>
               <AntDesign name={"stepforward"} size={17} color={"#fff"} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.controlWhite}>
-              {playerStore.isSluts
-                ? <AntDesign onPress={() => setVisibleCreate(!isVisibleCreate)} name={"message1"} size={17}
-                             color={"#fff"} />
-                : <AntDesign
+              {playerStore.isSluts ? (
+                <AntDesign
+                  onPress={() => setVisibleCreate(!isVisibleCreate)}
+                  name={"message1"}
+                  size={17}
+                  color={"#fff"}
+                />
+              ) : (
+                <AntDesign
                   // onPress={onPress}
                   name={"reload1"}
                   size={17}
                   color={"#fff"}
-                />}
+                />
+              )}
             </TouchableOpacity>
           </View>
           <Modal
             avoidKeyboard
             onBackdropPress={() => setVisibleCreate(!isVisibleCreate)}
-            isVisible={isVisibleCreate}>
-            <View style={{
-              height: 240,
-              backgroundColor: "white",
-              justifyContent: "space-between",
-              padding: 32,
-              borderRadius: 16,
-            }}>
+            isVisible={isVisibleCreate}
+          >
+            <View
+              style={{
+                height: 240,
+                backgroundColor: "white",
+                justifyContent: "space-between",
+                padding: 32,
+                borderRadius: 16,
+              }}
+            >
               <TextInput
                 multiline={true}
                 numberOfLines={4}
                 style={{ height: 40, borderBottomColor: "#c2c2c2" }}
                 placeholder="Введите текст заметки"
-                onChangeText={text => setBookmarkText(text)}
+                onChangeText={(text) => setBookmarkText(text)}
                 defaultValue={bookmarkText}
               />
               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                 <TouchableOpacity onPress={saveBookmark}>
-                  <Text style={{ fontSize: 16, color: "#272c35" }}>
-                    Добавить
-                  </Text>
+                  <Text style={{ fontSize: 16, color: "#272c35" }}>Добавить</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => setVisibleCreate(!isVisibleCreate)}>
-                  <Text style={{ fontSize: 16, color: "#272c35" }}>
-                    Отмена
-                  </Text>
+                  <Text style={{ fontSize: 16, color: "#272c35" }}>Отмена</Text>
                 </TouchableOpacity>
               </View>
-
             </View>
           </Modal>
           <View style={styles.volumeControl}></View>

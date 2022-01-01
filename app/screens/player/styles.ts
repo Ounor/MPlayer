@@ -16,17 +16,17 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 15,
   },
-  audioTitle: {
-    height: 40,
-    marginHorizontal: 16,
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
   audioSubTitle: {
     color: "#ADAAAA",
     fontSize: 16,
     marginBottom: 24,
+  },
+  audioTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    height: 40,
+    marginBottom: 8,
+    marginHorizontal: 16,
   },
   container: {
     flex: 1,
@@ -44,6 +44,18 @@ const styles = StyleSheet.create({
   controlWhite: {
     marginHorizontal: 10,
   },
+  imgBgStyle: {
+    alignItems: "center",
+    bottom: 4,
+    height: 108,
+    justifyContent: "center",
+    marginLeft: -8,
+    marginRight: 4,
+    paddingLeft: 10,
+    paddingTop: 14,
+    width: 108,
+  },
+  interface: { alignItems: "center", bottom: 100, position: "absolute", width: "100%" },
   midBannerContainer: {
     alignItems: "center",
     flex: 1,
@@ -54,7 +66,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginHorizontal: 16,
   },
+  selected: { backgroundColor: "#fff", borderRadius: 2 },
   slider: {
+    elevation: 5,
     marginHorizontal: 16,
     shadowColor: "#000",
     shadowOffset: {
@@ -63,22 +77,8 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
   },
-  track: { borderRadius: 2, width: "100%", height: 8 },
-  selected: { backgroundColor: "#fff", borderRadius: 2 },
-  interface: { bottom: 100, position: "absolute", alignItems: "center", width: "100%" },
-  imgBgStyle: {
-    paddingTop: 14,
-    paddingLeft: 10,
-    bottom: 4,
-    width: 108,
-    height: 108,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: -8,
-    marginRight: 4,
-  },
+  track: { borderRadius: 2, height: 8, width: "100%" },
 })
 
 export default styles
