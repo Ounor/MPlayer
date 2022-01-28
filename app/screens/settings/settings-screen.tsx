@@ -67,14 +67,14 @@ export const SettingsScreen: FC<StackScreenProps<NavigatorParamList, "noSluts">>
     //   fetchData()
     // }, [])
 
-    const [codeValue, setCodeValue] = useState(null)
+    const [codeValue, setCodeValue] = useState('')
 
     const onChangeNumber = (code) => {
       setCodeValue(code)
     }
 
     const handleSubmit = () => {
-      playerStore.setAvailableBook(!playerStore.isAvailableBook)
+      playerStore.setAvailableBook(codeValue)
       // playerStore.setAvailableBook(123)
     }
     const isDisabled = codeValue?.length < 6

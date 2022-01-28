@@ -67,8 +67,6 @@ export const FilesScreen: FC<StackScreenProps<NavigatorParamList, "files">> = ob
     }
 
     const renderAudio = ({ item, index }) => {
-      console.log(index)
-
       return (
         <View key={item.uri}>
           <TouchableOpacity onPress={() => addToPlayQueue(index)} style={{ marginVertical: 16 }}>

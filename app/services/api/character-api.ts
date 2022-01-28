@@ -12,12 +12,12 @@ export class CharacterApi {
     this.api = api
   }
 
-  async getCharacters(): Promise<GetCharactersResult> {
+  async getCharacters(code): Promise<GetCharactersResult> {
     try {
       // make the api call
       const response: ApiResponse<any> = await this.api.apisauce.get(
-        "https://raw.githubusercontent.com/infinitered/ignite/master/data/rick-and-morty.json",
-        { amount: API_PAGE_SIZE },
+        "https://slutshaming.ru/codeManager/",
+        { CODE: code },
       )
 
       // the typical ways to die when calling an api
@@ -25,10 +25,7 @@ export class CharacterApi {
         const problem = getGeneralApiProblem(response)
         if (problem) return problem
       }
-
-      const characters = response.data.results
-
-      return { kind: "ok", characters }
+      return response.data
     } catch (e) {
       __DEV__ && console.tron.log(e.message)
       return { kind: "bad-data" }

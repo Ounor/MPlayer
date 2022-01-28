@@ -35,7 +35,7 @@ const AppTabs = observer(() => {
       }}
       tabBar={(props) => <TabBarComponent {...props} />}
     >
-      <Tab.Screen name="files" component={FilesScreen} />
+      {!playerStore.isAvailableBook && <Tab.Screen name="files" component={FilesScreen} />}
       <Tab.Screen name="player" component={PlayerScreen} />
       <Tab.Screen name="settings" component={SettingsScreen} />
       {playerStore.isAvailableBook && <Tab.Screen name="noslutls" component={NoSlutsScreen} />}

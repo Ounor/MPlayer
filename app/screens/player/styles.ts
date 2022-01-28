@@ -55,7 +55,12 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     width: 108,
   },
-  interface: { alignItems: "center", bottom: 100, position: "absolute", width: "100%" },
+  interface: {
+    alignItems: "center",
+    bottom: 0,
+    position: "absolute",
+    width: "100%"
+  },
   midBannerContainer: {
     alignItems: "center",
     flex: 1,

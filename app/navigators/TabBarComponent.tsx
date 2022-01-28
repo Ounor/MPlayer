@@ -1,5 +1,5 @@
 import React from "react"
-import { Image, Text, TouchableOpacity, View } from "react-native"
+import { Image, TouchableOpacity, View } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 
 const images = {
@@ -56,6 +56,10 @@ const TabBarComponent = ({ state, descriptors, navigation }) => {
           })
         }
 
+        const slutsBg = label !== 'noslutls'
+          ? isFocused ? ["#700A79", "#F9027E"] : ["#0a345f", "#0a345f"]
+          : isFocused ?  ["#3892EF", "#0A4787"] : ["#FFFFFF", "#D9D9D9"]
+
         return (
           <TouchableOpacity
             key={index}
@@ -79,13 +83,13 @@ const TabBarComponent = ({ state, descriptors, navigation }) => {
             }}
           >
             <LinearGradient
-              colors={isFocused ? ["#700A79", "#F9027E"] : ["#0a345f", "#0a345f"]}
+              colors={slutsBg}
               style={{ width: 48, height: 48, alignItems: "center", justifyContent: "center" }}
             >
               <Image
                 source={images[label]}
                 resizeMode={"contain"}
-                style={{ width: 24, height: 50 }}
+                style={{ width: label === 'noslutls' ? 45 : 24, height: 45, tintColor: isFocused && label === 'noslutls' ? '#fff' : null }}
               />
             </LinearGradient>
           </TouchableOpacity>

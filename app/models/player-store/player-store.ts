@@ -1,4 +1,6 @@
 import { Instance, types } from "mobx-state-tree"
+import { CharacterApi } from "../../services/api/character-api"
+import { withEnvironment } from "../extensions/with-environment"
 
 const Track = types.model({
   artist: types.optional(types.string, ""),
@@ -25,12 +27,21 @@ export const PlayerStoreModel = types
     currentPlayList: types.optional(types.array(Track), []),
     bookmarks: types.array(Bookmark),
     playingId: types.optional(types.string, ""),
-    isAvailableBook: types.maybe(types.boolean),
+    isAvailableBook: types.optional(types.boolean, false),
   })
   .views((self) => ({})) // eslint-disable-line @typescript-eslint/no-unused-vars
+  .extend(withEnvironment)
   .actions((self) => ({
-    setAvailableBook: (val: boolean) => {
-      self.isAvailableBook = val
+    saveBookStatus: (isValid: boolean) => {
+      self.isAvailableBook = isValid
+    },
+  }))
+  .actions((self) => ({
+    setAvailableBook: async (code: string) => {
+      const characterApi = new CharacterApi(self.environment.api)
+      const result = await characterApi.getCharacters(code)
+      console.log(result)
+      self.saveBookStatus(result.isValid)
     },
     setCurrentId: (id: string) => {
       self.playingId = id || ""
@@ -64,7 +75,6 @@ export const PlayerStoreModel = types
         chapter: chapter.toString() || "0",
       })
 
-      // self.bookmarks = []
     },
   }))
 type PlayerStoreType = Instance<typeof PlayerStoreModel>
